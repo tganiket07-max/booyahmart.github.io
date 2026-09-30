@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BOOYAH MARKET</title>
+  <style>
+    * { box-sizing: border-box; font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
+    body { background-color: #121212; color: #ffffff; padding: 15px; }
+    .app-container { max-width: 480px; margin: 0 auto; background: #1e1e1e; min-height: 100vh; box-shadow: 0 0 20px rgba(0,0,0,0.5); position: relative; padding: 15px; border-radius: 10px; }
+    .header { text-align: center; margin-bottom: 20px; background: #252525; padding: 15px; border-radius: 8px; border-bottom: 2px solid #333; }
+    .header h1 { color: #f5af19; font-size: 24px; letter-spacing: 1px; }
+    .user-status { font-size: 14px; margin-top: 5px; color: #ccc; }
+    .badge-regular { background: #555; color: white; padding: 3px 8px; border-radius: 4px; font-weight: bold; font-size: 12px; }
+    .badge-vipro { background: #9b51e0; color: white; padding: 3px 8px; border-radius: 4px; font-weight: bold; font-size: 12px; }
+    .nav-tabs { display: flex; gap: 8px; overflow-x: auto; margin-bottom: 20px; padding-bottom: 5px; }
+    .nav-btn { background: #1a2235; border: 1px solid #2a354d; color: #aaa; padding: 10px 15px; border-radius: 6px; cursor: pointer; white-space: nowrap; font-weight: bold; flex-shrink: 0; }
+    .nav-btn.active { background: #ff5500; color: #fff; border-color: #ff5500; }
+    .container { background: #2a2a2a; border: 1px solid #1f2a3e; border-radius: 10px; padding: 15px; display: none; }
+    .container.active { display: block; }
+    .section-title { font-size: 18px; color: #ff8800; margin: 20px 0 10px; border-bottom: 1px solid #2a354d; padding-bottom: 5px; }
+    .plan-card { display: flex; justify-content: space-between; align-items: center; background: #1e1e1e; border: 1px solid #253047; padding: 12px 15px; border-radius: 8px; margin-bottom: 10px; gap: 8px; }
+    .plan-days { font-weight: bold; font-size: 13px; white-space: nowrap; flex: 1; }
+    .plan-price { color: #ffaa00; font-size: 15px; font-weight: bold; white-space: nowrap; text-align: right; flex: 1; }
+    .buy-btn { background: #20c997; color: #000; border: none; padding: 7px 12px; font-weight: bold; border-radius: 5px; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
+    .form-group { margin-bottom: 12px; }
+    .form-group label { display: block; font-size: 13px; color: #ffaa00; margin-bottom: 5px; }
+    .form-input, .form-select { width: 100%; padding: 10px; background: #121212; border: 1px solid #2a354d; color: #fff; border-radius: 5px; }
+    .submit-btn { width: 100%; padding: 12px; background: #ff5500; color: #fff; border: none; font-weight: bold; border-radius: 6px; cursor: pointer; margin-top: 10px; }
+    .features-box { background: #121212; border: 1px dashed #ff8800; border-radius: 8px; padding: 12px; margin-top: 15px; color: #ccc; font-size: 13px; line-height: 1.6; }
+    .qr-container { background: #121212; border: 1px solid #ff5500; border-radius: 8px; padding: 15px; text-align: center; margin-top: 15px; }
+    .qr-image { width: 180px; height: 180px; margin: 10px auto; border: 4px solid #fff; border-radius: 8px; display: block; }
+    .id-card { background: #1e1e1e; border: 1px solid #253047; border-radius: 8px; padding: 15px; margin-bottom: 15px; }
+    .id-details { font-size: 13px; color: #ddd; line-height: 1.5; margin-bottom: 10px; }
+    .admin-card { background: #1e1e1e; padding: 15px; border-radius: 8px; }
+    .admin-btn { width: 100%; padding: 10px; font-weight: bold; border: none; border-radius: 6px; margin-bottom: 8px; cursor: pointer; color: #fff; }
+    .btn-blue { background: #007bff; }
+    .btn-purple { background: #9b51e0; }
+    .btn-red { background: #eb5757; }
+    .admin-group-title { font-size: 14px; color: #ffaa00; margin: 10px 0 5px; font-weight: bold; }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    <div class="header">
+      <h1>🔥 Booyah Market</h1>
+      <div class="user-status">
+        Logged in as: <b id="displayUsername">Jdj</b> | 
+        <span id="displayBadge" class="badge-regular">Regular User</span> 
+        <span id="displayDays">(0 Days)</span>
+      </div>
+    </div>
+
+    <div class="nav-tabs">
+      <button class="nav-btn active" onclick="switchTab('sell-form', this)">Sell ID</button>
+      <button class="nav-btn" onclick="switchTab('market-feed', this)">Feed 🛒</button>
+      <button class="nav-btn" onclick="switchTab('seller-plans', this)">Seller Plans</button>
+      <button class="nav-btn" onclick="switchTab('buyer-plans', this)">Buyer Plans</button>
+      <button class="nav-btn" onclick="checkAdminPassword()" id="adminTabBtn">Admin 🔒</button>
+    </div>
+
+    <div id="sell-form" class="container active">
+      <h2>Sell Free Fire ID (Detailed Form)</h2>
+      <p style="font-size: 12px; color: #ffaa00; margin-bottom: 15px;" id="formFeeNotice">ℹ️ Regular Users: Listing fee required. VIP PRO = Free & Instant.</p>
+      
+      <div class="form-group">
+        <label>Game Level & Total Likes</label>
+        <input type="text" id="idLevel" class="form-input" placeholder="e.g. Level 72 / 15000 Likes">
+      </div>
+
+      <div class="form-group">
+        <label>Server / Region</label>
+        <select id="idServer" class="form-select">
+          <option value="India Server">India Server</option>
+          <option value="Bangladesh Server">Bangladesh Server</option>
+          <option value="Nepal Server">Nepal Server</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Account Login Type</label>
+        <select id="idLoginType" class="form-select">
+          <option value="Google">Google (Gmail)</option>
+          <option value="Facebook">Facebook</option>
+          <option value="VK">VK</option>
+          <option value="Twitter">Twitter / X</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Evo Guns (Level & Count)</label>
+        <input type="text" id="idEvo" class="form-input" placeholder="e.g. Scar Max, MP40 Lvl 4">
+      </div>
+
+      <div class="form-group">
+        <label>Rare Bundles & Outfits Summary</label>
+        <input type="text" id="idSkins" class="form-input" placeholder="e.g. Cobra Bundle, Hip Hop">
+      </div>
+
+      <div class="form-group">
+        <label>Elite Pass / Booyah Pass Count</label>
+        <input type="text" id="idPass" class="form-input" placeholder="e.g. 15+ Passes maxed">
+      </div>
+
+      <div class="form-group">
+        <label>📷 ID Screenshots Links (Paste image URLs)</label>
+        <input type="text" id="idScreenshots" class="form-input" placeholder="https://image1.jpg, https://image2.jpg">
+      </div>
+
+      <div class="form-group">
+        <label>Asking Price (₹)</label>
+        <input type="number" id="idPrice" class="form-input" placeholder="e.g. 2500">
+      </div>
+
+      <div class="form-group">
+        <label>Telegram Username or Phone Number</label>
+        <input type="text" id="idContact" class="form-input" placeholder="@your_username">
+      </div>
+
+      <div id="paymentSectionWrapper">
+        <div class="qr-container">
+          <h3 style="color: #ff8800; font-size: 15px;">Scan QR to Pay Listing Fee</h3>
+          <p style="font-size: 12px; color: #aaa; margin: 5px 0 10px 0;">Pay ₹25 listing fee:</p>
+          
+          <img id="upiQrImg" class="qr-image" src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=upi://pay?pa=booyahmarket@upi&pn=Booyah%20Market&am=25&cu=INR" alt="UPI QR">
+          <p style="font-size: 12px; color: #20c997; font-weight: bold;">UPI ID: booyahmarket@upi</p>
+
+          <div class="form-group" style="margin-top: 12px; text-align: left;">
+            <label>Payment UTR / Txn ID</label>
+            <input type="text" id="idUtr" class="form-input" placeholder="Enter 12-Digit UTR Number">
+          </div>
+        </div>
+      </div>
+
+      <button class="submit-btn" onclick="submitIdForm()">Publish ID to Market</button>
+    </div>
+
+    <div id="market-feed" class="container">
+      <h2>Live IDs Marketplace & Reviews</h2>
+      <p style="font-size: 12px; color: #aaa; margin-bottom: 15px;">Yahan approved IDs dikhengi.</p>
+      
+      <div id="listingsContainer">
+        <div class="id-card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <b style="color: #ffaa00;">Seller: Rohan_FF</b>
+            <span style="color: #20c997; font-weight: bold;">₹2,500</span>
+          </div>
+          <div class="id-details">
+            🔥 Level 72 / 15k Likes | 🌐 India Server<br>
+            ⚡ Evo Guns: Scar Max
+          </div>
+          <button class="buy-btn" style="width: 100%; margin-top: 8px;" onclick="buyIdDirect('Rohan_FF', '2500', 'Level 72 / India Server')">Buy This ID 🛒</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="seller-plans" class="container">
+      <h2 style="text-align: center; margin-bottom: 15px; font-size: 20px;">Membership plans for seller</h2>
+      
+      <div class="plan-card"><span class="plan-days">1 day</span><span class="plan-price">₹49</span><button class="buy-btn" onclick="buyPlan('Seller Plan (1 Day)', '49')">Purchase</button></div>
+      <div class="plan-card"><span class="plan-days">3 days</span><span class="plan-price">₹149</span><button class="buy-btn" onclick="buyPlan('Seller Plan (3 Days)', '149')">Purchase</button></div>
+      <div class="plan-card"><span class="plan-days">5 days</span><span class="plan-price">₹249</span><button class="buy-btn" onclick="buyPlan('Seller Plan (5 Days)', '249')">Purchase</button></div>
+      <div class="plan-card"><span class="plan-days">7 days</span><span class="plan-price">₹599</span><button class="buy-btn" onclick="buyPlan('Seller Plan (7 Days)', '599')">Purchase</button></div>
+      <div class="plan-card"><span class="plan-days">30 days</span><span class="plan-price">₹2,499</span><button class="buy-btn" onclick="buyPlan('Seller Plan (30 Days - Monthly)', '2499')">Purchase</button></div>
+      <div class="plan-card"><span class="plan-days">90 days</span><span class="plan-price">₹3,599</span><button class="buy-btn" onclick="buyPlan('Seller Plan (90 Days)', '3599')">Purchase</button></div>
+      <div class="plan-card"><span class="plan-days">365 days</span><span class="plan-price">₹4,799</span><button class="buy-btn" onclick="buyPlan('Seller Plan (365 Days)', '4799')">Purchase</button></div>
+      
+      <div class="features-box">
+        <b style="color: #ff8800;">Features unlock:-</b><br>
+        1. Direct chat to admin<br>
+        2. Trusted seller badge<br>
+        3. 2% to 5% discount<br>
+        4. Win coins on payment
+      </div>
+
+      <div class="section-title">Membership plan pro</div>
+      <div class="plan-card">
+        <span class="plan-days">90 days</span>
+        <span class="plan-price">₹5,999</span>
+        <button class="buy-btn" onclick="buyPlan('VIP PRO Plan (90 Days)', '5999')">Purchase</button>
+      </div>
+      <div class="plan-card">
+        <span class="plan-days">365 days</span>
+        <span class="plan-price">₹11,999</span>
+        <button class="buy-btn" onclick="buyPlan('VIP PRO Plan (365 Days)', '11999')">Purchase</button>
+      </div>
+    </div>
+
+    <div id="buyer-plans" class="container">
+      <h2>Buyer Safety & Protection Plans</h2>
+      <div class="plan-card">
+        <div>
+          <span class="plan-days">Single Deal Escrow</span><br>
+          <small style="color:#888;">100% Guaranteed Safe Account Handover</small>
+        </div>
+        <button class="buy-btn" onclick="buyPlan('Buyer Safety Escrow Plan', '99')">₹99</button>
+      </div>
+    </div>
+
+    <div id="admin-panel" class="container">
+      <h2>Admin Control Panel</h2>
+      <div class="admin-card" style="margin-top: 15px;">
+        <label style="color: #ffaa00; font-size: 13px; font-weight: bold;">Search by username</label>
+        <input type="text" id="targetUserInput" class="form-input" value="Jdj" style="margin-top: 5px; margin-bottom: 15px;">
+
+        <div style="background: #121212; padding: 12px; border-radius: 6px; margin-bottom: 15px;">
+          Target User: <b id="adminTargetName">Jdj</b><br>
+          Current Badge: <span id="adminBadge">Regular User</span><br>
+          VIP Member Days Left: <b id="adminDays" style="color: #ffaa00;">0 Days</b>
+        </div>
+
+        <div class="admin-group-title">Promote to VIP Member:</div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 10px;">
+          <button class="admin-btn btn-blue">VIP (1 Day)</button>
+          <button class="admin-btn btn-blue">VIP (3 Days)</button>
+          <button class="admin-btn btn-blue">VIP (5 Days)</button>
+          <button class="admin-btn btn-blue">VIP (7 Days)</button>
+          <button class="admin-btn btn-blue">VIP (30 Days)</button>
+          <button class="admin-btn btn-blue">VIP (90 Days)</button>
+        </div>
+        <div style="margin-bottom: 10px;">
+          <button class="admin-btn btn-blue">VIP (365 Days)</button>
+        </div>
+
+        <div class="admin-group-title">Promote to VIP PRO Member (0 Fee / 0% Commission):</div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 10px;">
+          <button class="admin-btn btn-purple" onclick="makeVipPro()">VIP PRO (90 Days)</button>
+          <button class="admin-btn btn-purple" onclick="makeVipPro()">VIP PRO (365 Days)</button>
+        </div>
+
+        <div class="admin-group-title">Remove / Demote Status:</div>
+        <button class="admin-btn btn-red" onclick="makeRegular()">Demote User (Block / Anti-Fraud)</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentUser = { username: "Jdj", type: "regular" };
+    const ADMIN_TELEGRAM = "BOOYAHMARKET07"; 
+
+    function switchTab(containerId, btn) {
+      document.querySelectorAll('.container').forEach(c => c.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById(containerId).classList.add('active');
+      btn.classList.add('active');
+    }
+
+    function checkAdminPassword() {
+      let pwd = prompt("🔐 Enter Admin Password to access Control Panel:");
+      if(pwd === "Pass" || pwd === "admin123") {
+        switchTab('admin-panel', document.getElementById('adminTabBtn'));
+      } else if(pwd !== null) {
+        alert("❌ Galat password! Access denied.");
+      }
+    }
+
+    function makeVipPro() {
+      currentUser.type = "vipro";
+      document.getElementById('displayBadge').className = "badge-vipro";
+      document.getElementById('displayBadge').innerText = "VIP PRO";
+      document.getElementById('adminBadge').innerText = "VIP PRO Member";
+      document.getElementById('paymentSectionWrapper').style.display = "none";
+      document.getElementById('formFeeNotice').innerHTML = "✨ VIP PRO User: Listing fee is <b>FREE</b> and instant!";
+      alert("Success! User status upgraded to VIP PRO.");
+    }
+
+    function makeRegular() {
+      currentUser.type = "regular";
+      document.getElementById('displayBadge').className = "badge-regular";
+      document.getElementById('displayBadge').innerText = "Regular User";
+      document.getElementById('adminBadge').innerText = "Regular User";
+      document.getElementById('paymentSectionWrapper').style.display = "block";
+      document.getElementById('formFeeNotice').innerHTML = "ℹ️ Regular Users: Listing fee required. VIP PRO = Free & Instant.";
+      alert("User demoted to Regular User.");
+    }
+
+    function buyPlan(planName, price) {
+      let message = `🛒 *NEW MEMBERSHIP / PLAN PURCHASE REQUEST*\n\n` +
+                    `👤 *User:* ${currentUser.username}\n` +
+                    `📦 *Selected Plan:* ${planName}\n` +
+                    `💵 *Price:* ₹${price}\n\n` +
+                    `⏳ *Status:* Waiting for payment confirmation.`;
+
+      alert(`Aapko plan "${planName}" (₹${price}) ke liye Telegram par redirect kiya ja raha hai.`);
+      let tgUrl = `https://t.me/${ADMIN_TELEGRAM}?text=${encodeURIComponent(message)}`;
+      window.open(tgUrl, '_blank');
+    }
+
+    function buyIdDirect(sellerName, price, details) {
+      let message = `🛒 *FREE FIRE ID PURCHASE REQUEST*\n\n` +
+                    `👤 *Buyer:* ${currentUser.username}\n` +
+                    `🏷️ *Seller:* ${sellerName}\n` +
+                    `💰 *Price:* ₹${price}\n` +
+                    `📊 *Details:* ${details}\n\n` +
+                    `⚡ *Status:* Ready to buy via Escrow / Admin.`;
+
+      alert(`Aapko is ID ko kharidne ke liye Telegram par redirect kiya ja raha hai.`);
+      let tgUrl = `https://t.me/${ADMIN_TELEGRAM}?text=${encodeURIComponent(message)}`;
+      window.open(tgUrl, '_blank');
+    }
+
+    function submitIdForm() {
+      let level = document.getElementById('idLevel').value;
+      let server = document.getElementById('idServer').value;
+      let loginType = document.getElementById('idLoginType').value;
+      let evo = document.getElementById('idEvo').value;
+      let skins = document.getElementById('idSkins').value;
+      let pass = document.getElementById('idPass').value;
+      let screenshots = document.getElementById('idScreenshots').value;
+      let price = document.getElementById('idPrice').value;
+      let contact = document.getElementById('idContact').value;
+      let utr = document.getElementById('idUtr').value;
+
+      if(!level || !price || !contact) {
+        alert('Kripya sabhi zaroori fields bhariye!');
+        return;
+      }
+
+      let message = `🔥 *NEW FREE FIRE ID LISTING* 🔥\n\n` +
+                    `👤 *User:* ${currentUser.username} (${currentUser.type.toUpperCase()})\n` +
+                    `📊 *Level/Likes:* ${level}\n` +
+                    `🌐 *Server:* ${server}\n` +
+                    `🔑 *Login Type:* ${loginType}\n` +
+                    `⚡ *Evo Guns:* ${evo || 'N/A'}\n` +
+                    `🎒 *Bundles/Skins:* ${skins || 'N/A'}\n` +
+                    `🎟️ *Passes:* ${pass || 'N/A'}\n` +
+                    `🖼️ *Screenshots:* ${screenshots || 'N/A'}\n` +
+                    `💰 *Price:* ₹${price}\n` +
+                    `📞 *Contact:* ${contact}\n`;
+
+      if(currentUser.type === 'vipro') {
+        message += `✨ *Status:* VIP PRO (Free Instant Listing)`;
+        alert('🎉 VIP Pro status verified! Telegram par redirect kiya ja raha hai...');
+        addListingToFeed(level, price, currentUser.username);
+        switchTab('market-feed', document.querySelectorAll('.nav-btn')[1]);
+      } else {
+        if(!utr) {
+          alert('Kripya payment karke 12-Digit UTR Number enter karein!');
+          return;
+        }
+        message += `💳 *UTR / Txn ID:* ${utr}\n🛑 *Status:* Pending Payment Verification`;
+        alert('✅ Form submitted! Telegram khul raha hai, wahan message send karein.');
+      }
+
+      let tgUrl = `https://t.me/${ADMIN_TELEGRAM}?text=${encodeURIComponent(message)}`;
+      window.open(tgUrl, '_blank');
+    }
+
+    function addListingToFeed(level, price, seller) {
+      let feed = document.getElementById('listingsContainer');
+      let card = document.createElement('div');
+      card.className = 'id-card';
+      card.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <b style="color: #ffaa00;">Seller: ${seller}</b>
+          <span style="color: #20c997; font-weight: bold;">₹${price}</span>
+        </div>
+        <div class="id-details">🔥 ${level} | 🌐 India Server (VIP PRO)</div>
+        <button class="buy-btn" style="width: 100%; margin-top: 8px;" onclick="buyIdDirect('${seller}', '${price}', '${level}')">Buy This ID 🛒</button>
+      `;
+      feed.prepend(card);
+    }
+  </script>
+</body>
+</html>
